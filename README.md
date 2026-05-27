@@ -34,14 +34,14 @@ Platzi - Curso de Claude Code
 ### 🎯 Endpoints disponibles
 | Método | Ruta | Descripción |
 | ------ | ---- | ----------- |
-| GET | /courses | Lista cursos con rating stats |
-| GET | /courses/{slug} | Detalle con teachers + lessons |
-| GET | /classes/{class_id} | Detalle de una clase |
-| POST | /courses/{id}/ratings | Crear/actualizar rating (upsert) |
-| GET | /courses/{id}/ratings/stats | Promedio + distribución |
-| PUT | /courses/{id}/ratings/{user_id} | Actualizar rating |
-| DELETE | /courses/{id}/ratings/{user_id} | Soft delete |
-| GET | /health | Health check + DB |
+| GET | `/courses` | Lista cursos con rating stats |
+| GET | `/courses/{slug}` | Detalle con teachers + lessons |
+| GET | `/classes/{class_id}` | Detalle de una clase |
+| POST | `/courses/{id}/ratings` | Crear/actualizar rating (upsert) |
+| GET | `/courses/{id}/ratings/stats` | Promedio + distribución |
+| PUT | `/courses/{id}/ratings/{user_id}` | Actualizar rating |
+| DELETE | `/courses/{id}/ratings/{user_id}` | Soft delete |
+| GET | `/health` | Health check + DB |
 
 ### Bases de datos (PostgreSQL 15)
 ```text
@@ -86,19 +86,19 @@ VideoPlayer
 #### 🧱 Arquitectura: Clean Architecture + MVI
 ```text
 📂 presentation/
-├── 📄 viewmodel/CourseListViewModel.kt  ← MVI: handleEvent() + StateFlow.
-├── 📄 state/CourseListUiState.kt        ← Estado inmutable.
-└── 📄 screen/CourseListScreen.kt        ← Composable UI.
+├── 📄 viewmodel/CourseListViewModel.kt        ← MVI: handleEvent() + StateFlow.
+├── 📄 state/CourseListUiState.kt              ← Estado inmutable.
+└── 📄 screen/CourseListScreen.kt              ← Composable UI.
 
 📂 domain/
-├── 📄 models/Course.kt                   ← Modelo de dominio.
-└── 📄 repositories/CourseRepository.kt   ← Interface (contrato).
+├── 📄 models/Course.kt                        ← Modelo de dominio.
+└── 📄 repositories/CourseRepository.kt        ← Interface (contrato).
 
 📂 data/
-├── 📄 network/ApiService.kt              ← Retrofit interface.
-├── 📄 entities/CourseDTO.kt              ← Respuesta JSON
-├── 📄 mappers/CourseMapper.kt            ← DTO → Domain.
-└── 📄 repositories/RemoteCourseRepository.kt ← Implementación API.
+├── 📄 network/ApiService.kt                   ← Retrofit interface.
+├── 📄 entities/CourseDTO.kt                   ← Respuesta JSON
+├── 📄 mappers/CourseMapper.kt                 ← DTO → Domain.
+└── 📄 repositories/RemoteCourseRepository.kt  ← Implementación API.
 ```
 
 #### 🧱 Patrón MVI
@@ -107,7 +107,7 @@ UI Event (LoadCourses/Refresh)
    ↓
 ViewModel.handleEvent()
    ↓
-Repository.getAllCourses()  →  Retrofit  →  GET /courses
+Repository.getAllCourses() → Retrofit → GET /courses
    ↓
 CourseMapper: DTO → Domain
    ↓
@@ -121,24 +121,24 @@ Composable re-render
 ```text
 📂 Presentation/
 ├── 📄 ViewModels/CourseListViewModel.swift  ← @MainActor ObservableObject
-│                                           @Published courses, isLoading,
+│                                             @Published courses, isLoading,
 searchText
-  └── 📂 Views/
-      ├── 📄 CourseListView.swift                ← Lista + búsqueda con filtrado
-      ├── 📄 CourseCardView.swift                ← Card individual
-      └── 📄 DesignSystem.swift                ← Tokens de diseño
+└── 📂 Views/
+  ├── 📄 CourseListView.swift                 ← Lista + búsqueda con filtrado
+  ├── 📄 CourseCardView.swift                 ← Card individual
+  └── 📄 DesignSystem.swift                   ← Tokens de diseño
 
 📂 Domain/
 ├── 📂 Models/ Course, Teacher, Class       ← Identifiable + Equatable
-└── 📂 Repositories/CourseRepositoryProtocol ← Swift Protocol
+└── 📂 Repositories/CourseRepositoryProtocol  ← Swift Protocol
 
 📂 Data/
-├── 📂 Entities/ CourseDTO, TeacherDTO      ← Codable para JSON
-├── 📂 Mapper/ CourseMapper, TeacherMapper  ← DTO → Domain
-└── 📂 Repositories/RemoteCourseRepository  ← URLSession + async/await
+├── 📂 Entities/ CourseDTO, TeacherDTO        ← Codable para JSON
+├── 📂 Mapper/ CourseMapper, TeacherMapper    ← DTO → Domain
+└── 📂 Repositories/RemoteCourseRepository    ← URLSession + async/await
 
 📂 Services/
-├── 📄 NetworkManager.swift                 ← URLSession wrapper (singleton)
-├── 📄 NetworkError.swift                   ← Error enum tipado
-└── 📄 CourseAPIEndpoints.swift             ← Enum de endpoints
+├── 📄 NetworkManager.swift                   ← URLSession wrapper (singleton)
+├── 📄 NetworkError.swift                     ← Error enum tipado
+└── 📄 CourseAPIEndpoints.swift               ← Enum de endpoints
 ```
