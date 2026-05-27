@@ -8,6 +8,14 @@ Platzi - Curso de Claude Code
   - [Endpoints disponibles](#-endpoints-disponibles)
   - [Bases de datos (PostgreSQL 15)](#bases-de-datos-postgresql-15)
 - [Frontend - Next.js 15](#frontend---nextjs-15)
+  - [Arquitectura: App Router + Server Components](#-arquitectura-app-router--server-components)
+  - [Flujo de Datos](#️-flujo-de-datos)
+- [Android - Kotlin + Jetpack Compose](#android---kotlin--jetpack-compose)
+  - [Arquitectura: Clean Architecture + MVI](#-arquitectura-clean-architecture--mvi)
+  - [Patrón MVI](#-patrón-mvi)
+- [iOS - Swift + SwiftUI](#ios---swift--swiftui)
+  - [Clean Architecture + MVVM](#-clean-architecture--mvvm)
+
 
 
 ## 🖼️ Big Picture
@@ -121,7 +129,7 @@ Composable re-render
 ```text
 📂 Presentation/
 ├── 📄 ViewModels/CourseListViewModel.swift  ← @MainActor ObservableObject
-│                                             @Published courses, isLoading,
+│                                               @Published courses, isLoading,
 searchText
 └── 📂 Views/
   ├── 📄 CourseListView.swift                 ← Lista + búsqueda con filtrado
@@ -129,7 +137,7 @@ searchText
   └── 📄 DesignSystem.swift                   ← Tokens de diseño
 
 📂 Domain/
-├── 📂 Models/ Course, Teacher, Class       ← Identifiable + Equatable
+├── 📂 Models/ Course, Teacher, Class         ← Identifiable + Equatable
 └── 📂 Repositories/CourseRepositoryProtocol  ← Swift Protocol
 
 📂 Data/
