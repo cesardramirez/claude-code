@@ -27,4 +27,4 @@ Platzi - Curso de Claude Code
 
 | Método | Ruta | Descripción |
 | ------ | ---- | ----------- |
-│ GET │ /courses │ Lista cursos con rating stats |
+| GET | /courses | Lista cursos con rating stats |
