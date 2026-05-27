@@ -10,18 +10,20 @@ Platzi - Curso de Claude Code
 
 ## Backend - FastAPI + PostgreSQL
 ### 🧱 Arquitectura: Layered Architecture (Service Layer Pattern)
-📦 app/<br>
-├── 📄 main.py            ← Endpoints REST (10 rutas). <br>
-├── 📄 core/config.py     ← Settings centralizados.<br>
-├── 📂 models/            ← SQLAlchemy ORM (entidades con soft deletes).<br>
-│   ├── 📄 course.py      ← Course (slug único, M2M teachers, 1-M lessons/ratings).<br>
-│   ├── 📄 teacher.py     ← Teacher (email único).<br>
-│   ├── 📄 lesson.py      ← Lesson (video_url, slug).<br>
-│   └── 📄 course_rating.py ← Rating 1-5, unique(course_id, user_id).<br>
-├── 📂 schemas/           ← Pydantic DTOs (validación request/response).<br>
-├── 📂 services/          ← CourseService (toda la lógica de negocio).<br>
-├── 📂 db/                ← Engine SQLAlchemy + seed.<br>
-└── 📂 alembic/           ← Migraciones de DB.<br>
+```text
+📦 app
+├── 📄 main.py            ← Endpoints REST (10 rutas).
+├── 📄 core/config.py     ← Settings centralizados.
+├── 📂 models/            ← SQLAlchemy ORM (entidades con soft deletes).
+│   ├── 📄 course.py      ← Course (slug único, M2M teachers, 1-M lessons/ratings).
+│   ├── 📄 teacher.py     ← Teacher (email único).
+│   ├── 📄 lesson.py      ← Lesson (video_url, slug).
+│   ├── 📄 course_rating.py ← Rating 1-5, unique(course_id, user_id).
+├── 📂 schemas/           ← Pydantic DTOs (validación request/response).
+├── 📂 services/          ← CourseService (toda la lógica de negocio).
+├── 📂 db/                ← Engine SQLAlchemy + seed
+└── 📂 alembic/           ← Migraciones de DB.
+```
 
 ### 🎯 Endpoints disponibles
 
