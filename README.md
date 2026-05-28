@@ -15,6 +15,7 @@ Platzi - Curso de Claude Code
   - [Patrón MVI](#-patrón-mvi)
 - [iOS - Swift + SwiftUI](#ios---swift--swiftui)
   - [Clean Architecture + MVVM](#-clean-architecture--mvvm)
+- [Patrones Compartidos en Todo el Sistema](#patrones-compartidos-en-todo-el-sistema)
 
 
 
@@ -129,7 +130,7 @@ Composable re-render
 ```text
 📂 Presentation/
 ├── 📄 ViewModels/CourseListViewModel.swift  ← @MainActor ObservableObject
-│                                               @Published courses, isLoading,
+│                                              @Published courses, isLoading,
 searchText
 └── 📂 Views/
   ├── 📄 CourseListView.swift                 ← Lista + búsqueda con filtrado
@@ -150,3 +151,43 @@ searchText
 ├── 📄 NetworkError.swift                     ← Error enum tipado
 └── 📄 CourseAPIEndpoints.swift               ← Enum de endpoints
 ```
+
+## Patrones Compartidos en Todo el Sistema
+| Patrón | Backend | Frontend | Android | iOS |
+| ------ | ------- | -------- | ------- | --- |
+| **Repository** | SQLAlchemy + Service | ratingsApi.ts | CourseRepository | CourseRepositoryProtocol |
+| **DTOs/Schemas** | Pydantic | TypeScript types | CourseDTO (Kotlin) | CourseDTO (Codable) |
+| **Mappers** | implícito en service | - | CourseMapper.kt | CourseMapper.swift |
+| **Soft Deletes** | deleted_at en todos | - | - | - |
+| **Error Deletes** | HTTP en todos | ApiError | NetworkError | - |
+| **Error handling** | HTTP status codes | ApiError class | NetworkError sealed | NetworkError enum |
+| **Testing** | pytest | Vitest + RTL | JUnit 4 | XCTest |
+
+## Flujo End-to-End
+```text
+Usuario abre app/web
+        │
+        ▼
+┌──────────────────┐     GET /courses       ┌─────────────────────┐
+│ Frontend/Mobile  │ ─────────────────────► │   FastAPI Backend   │
+│                  │                        │                     │
+│  Renderiza grid  │ ◄───────────────────── │  CourseService      │
+│  de cursos       │   JSON: courses[]      │  → SQLAlchemy       │
+│                  │   + avg_rating         │  → PostgreSQL       │
+└──────────────────┘   + total_ratings      └─────────────────────┘
+        │
+        ▼
+Usuario selecciona curso
+        │
+        ▼
+GET /courses/{slug} → Detalle completo (teachers, lessons, ratings)
+        │
+        ▼
+Usuario ve lección → GET /classes/{id} → VideoPlayer
+        │
+        ▼
+Usuario puntúa → POST /courses/{id}/ratings → Upsert en DB
+```
+
+---
+**Resumen de la arquitectura**: Es un sistema Netflix-clone educativo con API REST central (FastAPI) que alimenta tres clientes independientes. Todos usan Repository Pattern como contrato de datos, DTOs con mappers para separar capas, y Clean Architecture en mobile. El backend implementa soft deletes y agregaciones SQL eficientes para rating stats.
