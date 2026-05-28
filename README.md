@@ -16,7 +16,7 @@ Platzi - Curso de Claude Code
 - [iOS - Swift + SwiftUI](#ios---swift--swiftui)
   - [Clean Architecture + MVVM](#-clean-architecture--mvvm)
 - [Patrones Compartidos en Todo el Sistema](#patrones-compartidos-en-todo-el-sistema)
-
+- [Flujo End-to-End](#flujo-end-to-end)
 
 
 ## 🖼️ Big Picture
