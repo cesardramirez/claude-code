@@ -4,16 +4,20 @@ Platzi - Curso de Claude Code
 ## 📇 Index
 - [Big Picture](#big-picture)
 - [Backend - FastAPI + PostgreSQL](#backend---fastapi--postgresql)
+  - [Stack Tecnológico](#-stack-tecnológico-be)
   - [Arquitectura: Layered Architecture (Service Layer Pattern)](#-arquitectura-layered-architecture-service-layer-pattern)
   - [Endpoints disponibles](#-endpoints-disponibles)
-  - [Bases de datos (PostgreSQL 15)](#bases-de-datos-postgresql-15)
-- [Frontend - Next.js 15](#frontend---nextjs-15)
+  - [Modelo de Datos>](#-modelo-de-datos)
+- [Frontend - Aplicación Web (Next.js)](#frontend---nextjs-15)
+  - [Stack Tecnológico](#-stack-tecnológico-fe)
   - [Arquitectura: App Router + Server Components](#-arquitectura-app-router--server-components)
   - [Flujo de Datos](#️-flujo-de-datos)
 - [Android - Kotlin + Jetpack Compose](#android---kotlin--jetpack-compose)
+  - [Stack Tecnológico](#-stack-tecnológico-android)
   - [Arquitectura: Clean Architecture + MVI](#-arquitectura-clean-architecture--mvi)
   - [Patrón MVI](#-patrón-mvi)
 - [iOS - Swift + SwiftUI](#ios---swift--swiftui)
+  - [Stack Tecnológico](#-stack-tecnológico-ios)
   - [Clean Architecture + MVVM](#-clean-architecture--mvvm)
 - [Patrones Compartidos en Todo el Sistema](#patrones-compartidos-en-todo-el-sistema)
 - [Flujo End-to-End](#flujo-end-to-end)
@@ -24,6 +28,14 @@ Platzi - Curso de Claude Code
 ![Big Picture](docs/img/01_Big_Picture.png)
 
 ## Backend - FastAPI + PostgreSQL
+### 🔧 Stack Tecnológico BE
+- Framework: FastAPI.
+- Base de datos: PostgreSQL 15.
+- ORM: SQLAlchemy 2.0.
+- Migraciones: Alembic.
+- Containerización: Docker + Docker Compose
+- Gestión de dependencias: UV (Python package manager)
+
 ### 🧱 Arquitectura: Layered Architecture (Service Layer Pattern)
 ```text
 📦 app
@@ -52,14 +64,20 @@ Platzi - Curso de Claude Code
 | DELETE | `/courses/{id}/ratings/{user_id}` | Soft delete |
 | GET | `/health` | Health check + DB |
 
-### Bases de datos (PostgreSQL 15)
-```text
-📊 courses -< course_teachers >- teachers
-├──< lessons
-├──< course_ratings (user_id, rating 1-5, soft delete)
-```
+### 📊 Modelo de Datos
+- Course - Teachers (Many-to-Many)
+- Course - Lessons (One-to-Many)
+- Lesson - Classes (One-to-Many)
 
-## Frontend - Next.js 15
+## Frontend - Aplicación Web (Next.js)
+### 🔧 Stack Tecnológico FE
+- Framework: Next.js 15 (App Router).
+- Runtime: React 19.
+- Lenguaje: TypeScript.
+- Estilos: SCSS + CSS Modules.
+- Testing: Vitest + React Testing Library.
+- Fonts: Geist Sans & Geist Mono.
+
 ### 🧱 Arquitectura: App Router + Server Components
 ```text
 📂 src/
@@ -75,6 +93,11 @@ Platzi - Curso de Claude Code
 ├── 📄 services/ratingsApi.ts           ← Cliente HTTP para ratings.
 └── 📂 types/                           ← TypeScript: Course, Rating, Stats.
 ```
+**Características:**
+- SSR/SSG con Next.js.
+- Design responsive con grid de cursos estilo Netflix.
+- Integración API con fetch nativo.
+- Navegaciòn dinámica con slug de cursos.
 
 ### ↔️ Flujo de Datos
 ```text
@@ -92,7 +115,16 @@ VideoPlayer
 ```
 
 ## Android - Kotlin + Jetpack Compose
-#### 🧱 Arquitectura: Clean Architecture + MVI
+### 🔧 Stack Tecnológico Android
+- UI: Jetpack Compose.
+- Lenguaje: Kotlin.
+- Arquitectura: MVVM.
+- HTTP: Retrofit + OkHttp.
+- Async: Cooutines.
+- Imágenes: Coil.
+- Testing: JUnit + Espresso.
+
+### 🧱 Arquitectura: Clean Architecture + MVI
 ```text
 📂 presentation/
 ├── 📄 viewmodel/CourseListViewModel.kt        ← MVI: handleEvent() + StateFlow.
@@ -110,7 +142,7 @@ VideoPlayer
 └── 📄 repositories/RemoteCourseRepository.kt  ← Implementación API.
 ```
 
-#### 🧱 Patrón MVI
+### 🧱 Patrón MVI
 ```text
 UI Event (LoadCourses/Refresh)
    ↓
@@ -126,7 +158,14 @@ Composable re-render
 ```
 
 ## iOS - Swift + SwiftUI
-#### 🧱 Clean Architecture + MVVM
+### 🔧 Stack Tecnológico iOS
+- UI: SwiftUI.
+- Lenguaje: Swift.
+- Arquitectura: Similar a MVVM.
+- Patrones: Repository + Mapper.
+- Data Layer: DTOs + Domain Models.
+
+### 🧱 Clean Architecture + MVVM
 ```text
 📂 Presentation/
 ├── 📄 ViewModels/CourseListViewModel.swift  ← @MainActor ObservableObject
@@ -163,7 +202,7 @@ searchText
 | **Error handling** | HTTP status codes | ApiError class | NetworkError sealed | NetworkError enum |
 | **Testing** | pytest | Vitest + RTL | JUnit 4 | XCTest |
 
-## Flujo End-to-End
+## 🔁 Flujo End-to-End
 ```text
 Usuario abre app/web
         │
