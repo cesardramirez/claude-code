@@ -2,13 +2,13 @@
 Platzi - Curso de Claude Code
 
 ## 📇 Index
-- [Big Picture](#big-picture)
+- [Big Picture](#️-big-picture)
 - [Backend - FastAPI + PostgreSQL](#backend---fastapi--postgresql)
   - [Stack Tecnológico](#-stack-tecnológico-be)
   - [Arquitectura: Layered Architecture (Service Layer Pattern)](#-arquitectura-layered-architecture-service-layer-pattern)
   - [Endpoints disponibles](#-endpoints-disponibles)
-  - [Modelo de Datos>](#-modelo-de-datos)
-- [Frontend - Aplicación Web (Next.js)](#frontend---nextjs-15)
+  - [Modelo de Datos](#-modelo-de-datos)
+- [Frontend - Aplicación Web (Next.js)](#frontend---aplicación-web-nextjs)
   - [Stack Tecnológico](#-stack-tecnológico-fe)
   - [Arquitectura: App Router + Server Components](#-arquitectura-app-router--server-components)
   - [Flujo de Datos](#️-flujo-de-datos)
@@ -20,7 +20,7 @@ Platzi - Curso de Claude Code
   - [Stack Tecnológico](#-stack-tecnológico-ios)
   - [Clean Architecture + MVVM](#-clean-architecture--mvvm)
 - [Patrones Compartidos en Todo el Sistema](#patrones-compartidos-en-todo-el-sistema)
-- [Flujo End-to-End](#flujo-end-to-end)
+- [Flujo End-to-End](#-flujo-end-to-end)
 
 
 ## 🖼️ Big Picture
