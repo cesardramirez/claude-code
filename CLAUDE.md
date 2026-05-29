@@ -1,8 +1,8 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Este archivo proporciona orientación a Claude Code (claude.ai/code) cuando trabaja con el código de este repositorio.
 
-## Platziflix
+## Platziflix - Proyecto Multiplataforma
 
 Plataforma de cursos online multi-plataforma: API REST (FastAPI + PostgreSQL), web (Next.js 15), Android (Kotlin) e iOS (Swift).
 
@@ -81,7 +81,7 @@ claude-code/
 ## API Endpoints
 
 - `GET /` — Bienvenida
-- `GET /health` — Health check + DB connectivity
+- `GET /health` — Verificación de estado + Conectividad BD
 - `GET /courses` — Lista todos los cursos
 - `GET /courses/{slug}` — Detalle de curso por slug
 - `GET /classes/{class_id}` — Detalle de clase
