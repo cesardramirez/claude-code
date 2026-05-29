@@ -1,8 +1,13 @@
-# Platziflix - Proyecto Multi-plataforma
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Platziflix
+
+Plataforma de cursos online multi-plataforma: API REST (FastAPI + PostgreSQL), web (Next.js 15), Android (Kotlin) e iOS (Swift).
 
 ## Arquitectura del Sistema
 
-Platziflix es una plataforma de cursos online con arquitectura multi-plataforma que incluye:
 - **Backend**: API REST con FastAPI + PostgreSQL
 - **Frontend**: Aplicación web con Next.js 15
 - **Mobile**: Apps nativas Android (Kotlin) + iOS (Swift)
@@ -34,11 +39,29 @@ Platziflix es una plataforma de cursos online con arquitectura multi-plataforma 
 
 ```
 claude-code/
-├── Backend/           # API FastAPI + PostgreSQL
-├── Frontend/          # Next.js 15 App
+├── Backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── alembic/versions/
+│   │   ├── models/
+│   │   ├── schemas/
+│   │   ├── services/
+│   │   ├── db/
+│   │   ├── core/
+│   │   └── tests/
+│   ├── docker-compose.yml
+│   ├── Dockerfile
+│   └── Makefile
+├── Frontend/
+│   └── src/
+│       ├── app/           # Next.js App Router
+│       ├── components/
+│       ├── services/
+│       ├── types/
+│       └── styles/
 └── Mobile/
-    ├── PlatziFlixAndroid/  # Kotlin App
-    └── PlatziFlixiOS/      # Swift App
+    ├── PlatziFlixAndroid/
+    └── PlatziFlixiOS/
 ```
 
 ## Modelo de Datos
@@ -48,6 +71,7 @@ claude-code/
 - **Teacher**: Profesores
 - **Lesson**: Lecciones de un curso
 - **Class**: Clases individuales de una lección
+- **CourseRating**: Calificaciones de cursos (unique por course + user)
 
 ### Relaciones
 - Course ↔ Teacher (Many-to-Many via course_teachers)
@@ -56,31 +80,67 @@ claude-code/
 
 ## API Endpoints
 
-- `GET /` - Bienvenida
-- `GET /health` - Health check + DB connectivity
-- `GET /courses` - Lista todos los cursos
-- `GET /courses/{slug}` - Detalle de curso por slug
+- `GET /` — Bienvenida
+- `GET /health` — Health check + DB connectivity
+- `GET /courses` — Lista todos los cursos
+- `GET /courses/{slug}` — Detalle de curso por slug
+- `GET /classes/{class_id}` — Detalle de clase
+- `POST /courses/{id}/ratings` — Crear o actualizar rating (upsert)
+- `GET /courses/{id}/ratings/stats` — Estadísticas de ratings
+- `PUT /courses/{id}/ratings/{user_id}` — Actualizar rating
+- `DELETE /courses/{id}/ratings/{user_id}` — Eliminar rating
 
 ## Comandos de Desarrollo
 
 ### Backend
+
+El backend corre **exclusivamente dentro de Docker**. Nunca ejecutar comandos de Python o Alembic directamente en el host.
+
+Todos los comandos se ejecutan desde `Backend/` usando el Makefile:
+
 ```bash
-cd Backend
-make start        # Iniciar Docker Compose
-make stop         # Detener containers
-make migrate      # Ejecutar migraciones
-make seed         # Poblar datos de prueba
-make logs         # Ver logs
+make start            # Levantar contenedores (docker-compose up -d)
+make stop             # Detener contenedores
+make restart          # Reiniciar contenedores
+make build            # Construir imágenes
+make migrate          # Aplicar migraciones Alembic
+make seed             # Cargar datos de prueba
+make seed-fresh       # Limpiar y recargar datos de prueba
+make logs             # Ver logs en tiempo real
+make clean            # Eliminar contenedores, volúmenes e imágenes
 ```
 
+**Orden obligatorio al iniciar por primera vez:** `make start` → `make migrate` → `make seed`
+
+Para crear una migración (evitar `make create-migration` ya que es interactivo):
+
+```bash
+docker-compose exec api bash -c "cd /app && uv run alembic -c app/alembic.ini revision --autogenerate -m 'descripcion'"
+```
+
+Para correr los tests del backend (no hay target en el Makefile):
+
+```bash
+docker-compose exec api bash -c "uv run pytest app/tests/"
+```
+
+El gestor de dependencias es **UV** (no pip). No usar `pip install`.
+
 ### Frontend
+
+Usar siempre **yarn**, no npm:
+
 ```bash
 cd Frontend
-yarn dev          # Servidor de desarrollo
-yarn build        # Build de producción
-yarn test         # Ejecutar tests
-yarn lint         # Linter
+yarn dev    # Dev server con Turbopack
+yarn test   # Vitest + React Testing Library
+yarn lint   # ESLint
+yarn build  # Build de producción
 ```
+
+- Path alias `@/` apunta a `src/` — usarlo en todos los imports internos.
+- TypeScript en modo strict.
+- `vars.scss` se importa automáticamente en todos los archivos SCSS vía `next.config.ts` — no importarlo manualmente.
 
 ## URLs del Sistema
 
@@ -98,7 +158,7 @@ yarn lint         # Linter
 
 ### Migraciones
 - Ubicación: `Backend/app/alembic/versions/`
-- Comando crear: `make create-migration`
+- Comando crear: ver sección de comandos arriba
 - Comando aplicar: `make migrate`
 
 ## Funcionalidades Implementadas
@@ -110,6 +170,7 @@ yarn lint         # Linter
 - ✅ Health checks de API y DB
 - ✅ Apps móviles nativas (Android + iOS)
 - ✅ Testing en todos los componentes
+- ✅ Sistema de ratings de cursos (upsert)
 
 ## Patrones de Desarrollo
 
@@ -117,6 +178,8 @@ yarn lint         # Linter
 - **Arquitectura**: Service Layer Pattern
 - **Dependency Injection**: FastAPI Dependencies
 - **Database**: Repository Pattern con SQLAlchemy
+- **Soft deletes**: Los modelos usan `deleted_at` (no eliminación física)
+- **Ratings**: `POST /courses/{id}/ratings` hace upsert — unique constraint en `(course_id, user_id)`
 
 ### Frontend
 - **Routing**: Next.js App Router
@@ -136,20 +199,11 @@ yarn lint         # Linter
 4. **Migraciones automáticas** para cambios de DB
 5. **Convenciones de naming**: snake_case (Python), camelCase (JS/TS), PascalCase (Swift/Kotlin)
 6. **API REST** como única fuente de datos para Frontend/Mobile
+7. **Conventional Commits**: usar prefijos `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`
 
-## Comandos Útiles
+## Agentes Especializados
 
-```bash
-# Desarrollo completo
-cd Backend && make start    # Iniciar backend
-cd Frontend && yarn dev     # Iniciar frontend
-
-# Reset completo de datos
-cd Backend && make seed-fresh
-
-# Ver logs de todos los servicios
-cd Backend && make logs
-```
-
-Esta memoria contiene toda la información necesaria para continuar el desarrollo del proyecto Platziflix.
-- Cualquier comando que necesites ejecutar para el Backend debe ser dentro del contenedor de docker API, antes de ejecutarlo certifica que esté funcionando el contenedor y revisa el archivo makefile con los comandos que existen y úsalos
+Hay agentes pre-configurados en `.claude/agents/`:
+- `architect` — arquitectura, diseño de sistemas, contratos de API
+- `backend` — FastAPI, Python, SQLAlchemy, PostgreSQL, pytest
+- `frontend` — Next.js, React, TypeScript, SCSS, Vitest
