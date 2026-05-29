@@ -133,10 +133,17 @@ Usar siempre **yarn**, no npm:
 ```bash
 cd Frontend
 yarn dev    # Dev server con Turbopack
-yarn test   # Vitest + React Testing Library
+yarn test   # Vitest + React Testing Library (unit/integration)
+yarn e2e    # Playwright E2E tests (requiere backend y frontend corriendo)
 yarn lint   # ESLint
 yarn build  # Build de producción
 ```
+
+**Requisitos para `yarn e2e`:** el backend (`make start`) y el frontend (`yarn dev`) deben estar corriendo antes de ejecutar los tests E2E.
+
+- Tests E2E ubicados en `Frontend/e2e/`
+- Configuración en `Frontend/playwright.config.ts`
+- Usa Google Chrome del sistema (`/usr/bin/google-chrome`)
 
 - Path alias `@/` apunta a `src/` — usarlo en todos los imports internos.
 - TypeScript en modo strict.
