@@ -92,11 +92,11 @@ Acciones concretas:
 
 1. Crear `RatingSection.tsx` (`src/components/CourseDetail/`) — Client Component que
 gestione:
-  - Estado local: `userRating`, `isLoading`, `error`, `successMessage`.
-  - Al montar: consultar si el usuario ya calificó vía `ratingsApi.getUserRating()`
-  - Interacción: llamar a `ratingsApi.createRating()` o `ratingsApi.updateRating()` según corresponda
-  - Optimistic update + rollback en error.
-  - Feedback visual (loading, error, éxito).
+    - Estado local: `userRating`, `isLoading`, `error`, `successMessage`.
+    - Al montar: consultar si el usuario ya calificó vía `ratingsApi.getUserRating()`
+    - Interacción: llamar a `ratingsApi.createRating()` o `ratingsApi.updateRating()` según corresponda
+    - Optimistic update + rollback en error.
+    - Feedback visual (loading, error, éxito).
 2. Integrar `RatingSection` en la página de detalle del curso — Pasar `courseId` y un `userId` al componente.
 3. Deuda técnica identificada: el `userId` está hardcodeado como 1 porque no hay sistema de autenticación. Por ahora se puede mantener así y reemplazarlo cuando llegue el módulo de auth.
 4. Tests del `RatingSection` con Vitest + React Testing Library.
@@ -106,15 +106,15 @@ Resumen del impacto: El backend no requiere ningún cambio Todo el trabajo resta
 Resumen de cambios:
 
 1. Bug corregido — `ratingsApi.ts` (línea 143)
-La URL de `getUserRating` estaba mal: usaba /`ratings/${userId}` en lugar de `/ratings/user/${userId}`. Sin esta corrección, el componente nunca podría cargar el rating previo del usuario.
+La URL de `getUserRating` estaba mal: usaba `/ratings/${userId}` en lugar de `/ratings/user/${userId}`. Sin esta corrección, el componente nunca podría cargar el rating previo del usuario.
 
 2. `RatingSection.tsx `— nuevo componente Client
 `src/components/CourseDetail/RatingSection.tsx` — Client Component (`'use client'`) que gestiona:
-  - Carga del rating existente del usuario al montar (via `getUserRating`)
-  - 5 botones de estrellas interactivos con hover y estado seleccionado
-  - Actualización optimista con rollback automático en error
-  - Estados de UI: idle → loading → success/error
-  - Visualización del promedio actualizado tras calificar
+    - Carga del rating existente del usuario al montar (via `getUserRating`)
+    - 5 botones de estrellas interactivos con hover y estado seleccionado
+    - Actualización optimista con rollback automático en error
+    - Estados de UI: idle → loading → success/error
+    - Visualización del promedio actualizado tras calificar
 
 3. `RatingSection.module.scss` — estilos
 `src/components/CourseDetail/RatingSection.module.scss` — usa color() directamente sin importar `vars.scss` (auto-importado por Next.js).
@@ -124,3 +124,34 @@ Añade `<RatingSection courseId={course.id} userId={1} .../>` debajo de las stat
 
 5. `RatingSection.test.tsx` — 12 tests
 `src/components/CourseDetail/__tests__/RatingSection.test.tsx` cubre: renderizado, estado inicial del usuario, clic para calificar, estado loading, éxito con actualización de stats, manejo de errores, rollback optimista y comportamiento de hover.
+
+### Verificación de Pruebas de la Funcionalidad
+Verification: componente RatingSection interactivo
+
+**Verdict**: PASS
+
+**Claim**: El componente aparece en la página de detalle del curso, permite seleccionar 1-5 estrellas con hover, guarda la calificación al hacer click y actualiza el promedio.
+
+**Method**: Cold start — backend con Docker, frontend con yarn dev, Playwright + Chrome headless.
+
+**Steps**
+
+1. ✅ `GET /course/curso-de-react` → `RatingSection` visible con título "Califica este curso" y 5 estrellas grises vacías.
+2. ✅ Hover sobre estrella 3 → las 3 primeras se iluminan en amarillo y aparece el label "3 / 5" en tiempo real.
+3. ✅ Click en estrella 4 → actualización optimista inmediata (4 estrellas amarillas, "4 / 5"), luego mensaje "¡Calificación guardada!" en verde y promedio 4.0 (1) al pie.
+4. ✅ Estado final idle → mensaje desaparece, selección y promedio permanecen.
+5. 🔍 Probe — segundo click en estrella 2 (actualizar rating existente) → upsert exitoso, promedio se actualiza a 2.0, confirmando que el backend hace UPDATE correctamente.
+
+**Findings**
+
+- Fix necesario aplicado: el backend no tenía CORSMiddleware, lo que bloqueaba todas las peticiones del browser desde localhost:3000. Se añadió en main.py y el fix está pendiente de commit.
+- ⚠️  "Duración total: NaNh NaNm" — bug pre-existente: el campo `duration` en las clases llega como null o con nombre distinto desde la API. No está relacionado con el rating.
+- ⚠️  Nombre del profesor y thumbnail no cargan — también pre-existentes.
+
+Todo funcionando correctamente en el navegador. El sistema de ratings opera de punta a punta:
+   
+- Hover → estrellas se iluminan en amarillo en tiempo real
+- Click → se guarda (upsert), aparece "¡Calificación guardada!" en verde y el promedio se actualiza
+- Segundo click → actualiza el rating existente sin error
+
+Se aplicó y publicó un fix adicional en el backend: `CORSMiddleware` en `main.py`, que era necesario para que el navegador pudiera hacer peticiones desde `localhost:3000` a `localhost:8000`.
