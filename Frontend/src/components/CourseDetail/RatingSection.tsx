@@ -80,9 +80,9 @@ export const RatingSection = ({
             ★
           </button>
         ))}
-        {userRating > 0 && (
+        {displayRating > 0 && (
           <span className={styles.selectedLabel}>
-            {hoveredRating > 0 ? hoveredRating : userRating} / 5
+            {displayRating} / 5
           </span>
         )}
       </div>
