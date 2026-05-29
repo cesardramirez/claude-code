@@ -155,3 +155,15 @@ Todo funcionando correctamente en el navegador. El sistema de ratings opera de p
 - Segundo click → actualiza el rating existente sin error
 
 Se aplicó y publicó un fix adicional en el backend: `CORSMiddleware` en `main.py`, que era necesario para que el navegador pudiera hacer peticiones desde `localhost:3000` a `localhost:8000`.
+
+### E2E
+7/7 tests E2E pasando. Resumen de lo que se creó:
+- `playwright.config.ts` — configuración con baseURL localhost:3000, Chrome del sistema y screenshots en fallos.
+- `e2e/ratings.spec.ts` — 7 tests que cubren el flujo completo:
+a. Render del componente con 5 estrellas
+b. Hover ilumina estrellas y muestra label
+c. Click guarda rating con mensaje de éxito
+d. Promedio se actualiza tras calificar
+e. Rating persiste al recargar la página
+f. Actualizar un rating existente (upsert)
+g. Funciona en los 3 cursos disponibles
