@@ -140,7 +140,7 @@ async function getUserRating(
   courseId: number,
   userId: number
 ): Promise<CourseRating | null> {
-  const url = `${API_BASE_URL}/courses/${courseId}/ratings/${userId}`;
+  const url = `${API_BASE_URL}/courses/${courseId}/ratings/user/${userId}`;
 
   try {
     const response = await fetchWithTimeout(url, {

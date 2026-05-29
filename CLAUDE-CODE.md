@@ -47,3 +47,80 @@ docker compose exec api bash -c "cd /app && uv run python -m app.db.seed"
 
 ### Listado de Cursos
 ![Listado Cursos](docs/img/04_Listado_Cursos.png)
+
+## Sistema de Ratings
+`/effort high`
+```text
+Necesito implementar un sistema de ratings en este proyecto, el rating de un curso puede ir desde 1 estrella hasta 5 estrellas. Tu tarea es analizar el impacto que va a tener la implementación de este feature en el proyecto. Analiza qué acciones deben hacerse en cada uno de los componentes del proyecto (backend, frontend) para implementar el rating.
+```
+
+### Backend
+Indicará que todo el backend ya se encuentra listo y funcionando:
+| Capa | Estado | Detalle |
+| ---- | ------ | ------- |
+| Modelo CourseRating | ✅ | course_id, user_id, rating (1-5), soft deletes |
+| Migración Alembic | ✅ | CHECK constraint (1-5), UNIQUE (course_id, user_id) |
+| Schemas Pydantic | ✅ | Request/Response/Stats con validación |
+| Service Layer | ✅ | UPSERT, UPDATE, soft DELETE, stats agregadas con SQL |
+| Endpoints API | ✅ | 6 endpoints REST funcionales |
+| Tests | ✅ | 39 passed, 1 skipped |
+
+Los endpoints disponibles son:
+```text
+POST   /courses/{id}/ratings              # Crear/actualizar (upsert)
+GET    /courses/{id}/ratings              # Listar ratings
+GET    /courses/{id}/ratings/stats        # Promedio + distribución
+GET    /courses/{id}/ratings/user/{uid}   # Rating de un usuario
+PUT    /courses/{id}/ratings/{user_id}    # Actualizar rating existente
+DELETE /courses/{id}/ratings/{user_id}    # Eliminar (soft delete)
+```
+
+### Frontend
+Indicará que el frontend está parcialmente implementado ⚠️ 
+| Capa | Estado | Detalle |
+| ---- | ------ | ------- |
+| Tipos TypeScript | ✅ | CourseRating, RatingStats, RatingRequest, type guards |
+| Servicio API | ✅ | ratingsApi con todos los métodos |
+| Componente StarRating | ✅ | Display readonly con medias estrellas y ARIA |
+| Integración en Course card | ✅ | Muestra promedio en la grilla de cursos |
+| Componente RatingSection | ❌ | No existe — es lo que falta |
+| Integración en página de detalle | ❌ | La página del curso no permite calificar |
+
+El único trabajo pendiente está en el frontend: un componente interactivo `RatingSection` que permita al usuario crear, actualizar o eliminar su calificación en la página de detalle del curso.
+
+Acciones concretas:
+
+1. Crear `RatingSection.tsx` (`src/components/CourseDetail/`) — Client Component que
+gestione:
+  - Estado local: `userRating`, `isLoading`, `error`, `successMessage`.
+  - Al montar: consultar si el usuario ya calificó vía `ratingsApi.getUserRating()`
+  - Interacción: llamar a `ratingsApi.createRating()` o `ratingsApi.updateRating()` según corresponda
+  - Optimistic update + rollback en error.
+  - Feedback visual (loading, error, éxito).
+2. Integrar `RatingSection` en la página de detalle del curso — Pasar `courseId` y un `userId` al componente.
+3. Deuda técnica identificada: el `userId` está hardcodeado como 1 porque no hay sistema de autenticación. Por ahora se puede mantener así y reemplazarlo cuando llegue el módulo de auth.
+4. Tests del `RatingSection` con Vitest + React Testing Library.
+
+Resumen del impacto: El backend no requiere ningún cambio Todo el trabajo restante es 4 tareas de frontend, siendo la principal crear el componente RatingSection. ¿Quieres que proceda a implementarlo?
+
+Resumen de cambios:
+
+1. Bug corregido — `ratingsApi.ts` (línea 143)
+La URL de `getUserRating` estaba mal: usaba /`ratings/${userId}` en lugar de `/ratings/user/${userId}`. Sin esta corrección, el componente nunca podría cargar el rating previo del usuario.
+
+2. `RatingSection.tsx `— nuevo componente Client
+`src/components/CourseDetail/RatingSection.tsx` — Client Component (`'use client'`) que gestiona:
+  - Carga del rating existente del usuario al montar (via `getUserRating`)
+  - 5 botones de estrellas interactivos con hover y estado seleccionado
+  - Actualización optimista con rollback automático en error
+  - Estados de UI: idle → loading → success/error
+  - Visualización del promedio actualizado tras calificar
+
+3. `RatingSection.module.scss` — estilos
+`src/components/CourseDetail/RatingSection.module.scss` — usa color() directamente sin importar `vars.scss` (auto-importado por Next.js).
+
+4. `CourseDetail.tsx` — integración
+Añade `<RatingSection courseId={course.id} userId={1} .../>` debajo de las stats de duración/clases. El `userId={1}` es temporal hasta que exista un sistema de autenticación.
+
+5. `RatingSection.test.tsx` — 12 tests
+`src/components/CourseDetail/__tests__/RatingSection.test.tsx` cubre: renderizado, estado inicial del usuario, clic para calificar, estado loading, éxito con actualización de stats, manejo de errores, rollback optimista y comportamiento de hover.
