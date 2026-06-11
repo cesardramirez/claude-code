@@ -102,216 +102,197 @@ Ambas plataformas deben replicar este flujo exacto:
 
 ---
 
-## FASE 1 — Data Layer: DTOs y Modelos de Dominio
+## FASE 1 — Data Layer: DTOs y Modelos de Dominio ✅
 
 **Estimación**: 1.5 h por plataforma  
-**Dependencias**: ninguna
+**Dependencias**: ninguna  
+**Estado**: Completado — commit `c0bad8e` (2026-06-10)
 
 ### Android
 
-1. Crear `data/entities/RatingDTO.kt`:
-   - `RatingResponseDTO` con todos los campos usando `@SerializedName`
-   - `RatingStatsDTO` con `ratingDistribution: Map<String, Int>`
-   - `RatingRequestDTO` para el body del POST
-
-2. Crear `domain/models/CourseRating.kt`: modelo de dominio sin `ratingDistribution`
-
-3. Crear `domain/models/RatingStats.kt`: solo `averageRating: Double` y `totalRatings: Int`
-
-4. Crear `data/mappers/RatingMapper.kt`: conversión DTO → dominio
+- [x] Crear `data/entities/RatingDTO.kt`:
+  - [x] `RatingResponseDTO` con todos los campos usando `@SerializedName`
+  - [x] `RatingStatsDTO` con `ratingDistribution: Map<String, Int>`
+  - [x] `RatingRequestDTO` para el body del POST
+- [x] Crear `domain/models/CourseRating.kt`: modelo de dominio sin `ratingDistribution`
+- [x] Crear `domain/models/RatingStats.kt`: solo `averageRating: Double` y `totalRatings: Int`
+- [x] Crear `data/mappers/RatingMapper.kt`: conversión DTO → dominio
 
 **Criterio de aceptación**: los DTOs deserializan correctamente los JSON de ejemplo de la sección anterior.
 
 ### iOS
 
-1. Crear `Data/Entities/RatingDTO.swift`:
-   - `RatingResponseDTO`: struct Codable con `CodingKeys` en snake_case
-   - `RatingStatsDTO` con `ratingDistribution: [String: Int]`
-   - `RatingRequestDTO`: struct Encodable
-
-2. Crear `Domain/Models/CourseRating.swift`: modelo de dominio
-
-3. Crear `Domain/Models/RatingStats.swift`: solo `averageRating` y `totalRatings`
-
-4. Crear `Data/Mapper/RatingMapper.swift`: struct con métodos de conversión DTO → dominio
+- [x] Crear `Data/Entities/RatingDTO.swift`:
+  - [x] `RatingResponseDTO`: struct Codable con `CodingKeys` en snake_case
+  - [x] `RatingStatsDTO` con `ratingDistribution: [String: Int]`
+  - [x] `RatingRequestDTO`: struct Encodable
+- [x] Crear `Domain/Models/CourseRating.swift`: modelo de dominio
+- [x] Crear `Domain/Models/RatingStats.swift`: solo `averageRating` y `totalRatings`
+- [x] Crear `Data/Mapper/RatingMapper.swift`: struct con métodos de conversión DTO → dominio
 
 **Criterio de aceptación**: los structs deserializan los JSON de ejemplo, incluyendo `rating_distribution` con claves string.
 
 ---
 
-## FASE 2 — Data Layer: Repositorio y Endpoints de Red
+## FASE 2 — Data Layer: Repositorio y Endpoints de Red ✅
 
 **Estimación**: 2.5 h por plataforma  
 **Dependencias**: Fase 1 completada
 
 ### Android
 
-1. Definir `domain/repositories/RatingRepository.kt` (interface):
-   - `getRatingStats(courseId: Int): Result<RatingStats>`
-   - `getUserRating(courseId: Int, userId: Int): Result<CourseRating?>`
-   - `upsertRating(courseId: Int, userId: Int, stars: Int): Result<CourseRating>`
-
-2. Extender `data/network/ApiService.kt` con los tres endpoints:
-   - `@POST("courses/{courseId}/ratings")`
-   - `@GET("courses/{courseId}/ratings/stats")`
-   - `@GET("courses/{courseId}/ratings/user/{userId}")`
-
-3. Crear `data/repositories/RemoteRatingRepository.kt`:
-   - `getUserRating`: verificar `response.code() == 204` **antes** de llamar a `body()` — devolver `Result.success(null)` en ese caso
-   - `upsertRating`: `201` es el único código de éxito esperado
-   - `getRatingStats`: `average_rating = 0.0` es válido, no tratar como error
-
-4. Registrar `RatingRepository` en `di/AppModule.kt`
+- [x] Definir `domain/repositories/RatingRepository.kt` (interface):
+  - [x] `getRatingStats(courseId: Int): Result<RatingStats>`
+  - [x] `getUserRating(courseId: Int, userId: Int): Result<CourseRating?>`
+  - [x] `upsertRating(courseId: Int, userId: Int, stars: Int): Result<CourseRating>`
+- [x] Extender `data/network/ApiService.kt` con los tres endpoints:
+  - [x] `@POST("courses/{courseId}/ratings")`
+  - [x] `@GET("courses/{courseId}/ratings/stats")`
+  - [x] `@GET("courses/{courseId}/ratings/user/{userId}")`
+- [x] Crear `data/repositories/RemoteRatingRepository.kt`:
+  - [x] `getUserRating`: verificar `response.code() == 204` **antes** de llamar a `body()` — devolver `Result.success(null)` en ese caso
+  - [x] `upsertRating`: `201` es el único código de éxito esperado
+  - [x] `getRatingStats`: `average_rating = 0.0` es válido, no tratar como error
+- [x] Registrar `RatingRepository` en `di/AppModule.kt`
 
 **Criterio de aceptación**: `getUserRating` en un curso sin ratings devuelve `Result.success(null)` sin lanzar excepción.
 
 ### iOS
 
-1. Definir `Domain/Repositories/RatingRepositoryProtocol.swift`:
-   - `getRatingStats(courseId:) async throws -> RatingStats`
-   - `getUserRating(courseId:userId:) async throws -> CourseRating?`
-   - `upsertRating(courseId:userId:stars:) async throws -> CourseRating`
-
-2. Crear `Data/Repositories/RatingAPIEndpoints.swift` como enum conformando `APIEndpoint` — siguiendo el patrón existente en `CourseAPIEndpoints`
-
-3. Crear `Data/Repositories/RemoteRatingRepository.swift` usando `NetworkManager.shared`:
-   - `getUserRating`: capturar `NetworkError.requestFailed(statusCode: 204)` y devolver `nil`
-   - `upsertRating`: esperar `201` como respuesta exitosa
-   - `getRatingStats`: `0.0` en `average_rating` es válido
+- [x] Definir `Domain/Repositories/RatingRepositoryProtocol.swift`:
+  - [x] `getRatingStats(courseId:) async throws -> RatingStats`
+  - [x] `getUserRating(courseId:userId:) async throws -> CourseRating?`
+  - [x] `upsertRating(courseId:userId:stars:) async throws -> CourseRating`
+- [x] Crear `Data/Repositories/RatingAPIEndpoints.swift` como enum conformando `APIEndpoint` — siguiendo el patrón existente en `CourseAPIEndpoints`
+- [x] Crear `Data/Repositories/RemoteRatingRepository.swift` usando `NetworkManager.shared`:
+  - [x] `getUserRating`: capturar `NetworkError.requestFailed(statusCode: 204)` y devolver `nil`
+  - [x] `upsertRating`: esperar `201` como respuesta exitosa
+  - [x] `getRatingStats`: `0.0` en `average_rating` es válido
 
 **Criterio de aceptación**: `getUserRating` en curso sin ratings devuelve `nil` sin propagar error.
 
 ---
 
-## FASE 3 — Presentation: ViewModel
+## FASE 3 — Presentation: ViewModel ✅
 
 **Estimación**: 3 h por plataforma  
 **Dependencias**: Fase 2 completada
 
 ### Android
 
-1. Crear `presentation/coursedetail/state/CourseDetailUiState.kt`:
-   - Enum `RatingState { IDLE, LOADING, SUCCESS, ERROR }`
-   - Data class `CourseDetailUiState` con: `isLoading`, `courseName`, `courseDescription`, `courseThumbnail`, `courseId`, `ratingStats: RatingStats?`, `userRating: Int?`, `ratingState`, `error: String?`
-
-2. Crear `presentation/coursedetail/viewmodel/CourseDetailViewModel.kt`:
-   - Recibe `courseId: Int` vía factory
-   - En `init`: lanza `loadRatingStats()` y `loadUserRating()` en coroutine
-   - `submitRating(stars: Int)`:
-     1. Guarda `previousRating = uiState.userRating`
-     2. Emite `userRating = stars` + `ratingState = LOADING` inmediatamente
-     3. Llama `upsertRating` en background
-     4. Si falla: restaura `previousRating` + emite `ratingState = ERROR`
-     5. Si exitoso: obtiene stats actualizadas + emite `SUCCESS` → delay 2000ms → emite `IDLE`
-   - Estado `ERROR` no se resetea automáticamente
-
-3. Centralizar constantes en el companion object:
-   - `HARDCODED_USER_ID = 1`
-   - `RATING_SUCCESS_RESET_DELAY_MS = 2000L`
-
-4. Registrar factory en `di/AppModule.kt`
+- [x] Crear `presentation/coursedetail/state/CourseDetailUiState.kt`:
+  - [x] Enum `RatingState { IDLE, LOADING, SUCCESS, ERROR }`
+  - [x] Data class `CourseDetailUiState` con: `isLoading`, `courseName`, `courseDescription`, `courseThumbnail`, `courseId`, `ratingStats: RatingStats?`, `userRating: Int?`, `ratingState`, `error: String?`
+- [x] Crear `presentation/coursedetail/viewmodel/CourseDetailViewModel.kt`:
+  - [x] Recibe `courseId: Int` vía factory
+  - [x] En `init`: lanza `loadRatingStats()` y `loadUserRating()` en coroutine
+  - [x] `submitRating(stars: Int)`:
+    1. Guarda `previousRating = uiState.userRating`
+    2. Emite `userRating = stars` + `ratingState = LOADING` inmediatamente
+    3. Llama `upsertRating` en background
+    4. Si falla: restaura `previousRating` + emite `ratingState = ERROR`
+    5. Si exitoso: obtiene stats actualizadas + emite `SUCCESS` → delay 2000ms → emite `IDLE`
+  - [x] Estado `ERROR` no se resetea automáticamente
+- [x] Centralizar constantes en el companion object:
+  - [x] `HARDCODED_USER_ID = 1`
+  - [x] `RATING_SUCCESS_RESET_DELAY_MS = 2000L`
+- [x] Registrar factory en `di/AppModule.kt`
 
 **Criterio de aceptación**: la actualización optimista revierte correctamente ante un error de red simulado.
 
 ### iOS
 
-1. Crear `Presentation/ViewModels/CourseDetailViewModel.swift`:
-   - Clase `@MainActor` que conforma `ObservableObject`
-   - `@Published var userRating: Int?`
-   - `@Published var ratingStats: RatingStats?`
-   - `@Published var ratingState: RatingState`
-   - `@Published var isLoading: Bool`
-   - `@Published var errorMessage: String?`
-   - `loadData()` ejecutado en `Task { }` — no bloquea el hilo principal
-   - `submitRating(stars: Int)` con el patrón optimista descrito arriba:
-     - Éxito: `ratingState = .success` → `Task.sleep(2_000_000_000)` → `ratingState = .idle`
-     - Error: restaurar rating previo + `ratingState = .error` (sin auto-reset)
-
-2. Centralizar constantes en `AppConstants`:
-   - `hardcodedUserId = 1`
-   - `ratingSuccessResetDelayNanoseconds: UInt64 = 2_000_000_000`
+- [x] Crear `Presentation/ViewModels/CourseDetailViewModel.swift`:
+  - [x] Clase `@MainActor` que conforma `ObservableObject`
+  - [x] `@Published var userRating: Int?`
+  - [x] `@Published var ratingStats: RatingStats?`
+  - [x] `@Published var ratingState: RatingState`
+  - [x] `@Published var isLoading: Bool`
+  - [x] `@Published var errorMessage: String?`
+  - [x] `loadData()` ejecutado en `Task { }` — no bloquea el hilo principal
+  - [x] `submitRating(stars: Int)` con el patrón optimista descrito arriba:
+    - Éxito: `ratingState = .success` → `Task.sleep(2_000_000_000)` → `ratingState = .idle`
+    - Error: restaurar rating previo + `ratingState = .error` (sin auto-reset)
+- [x] Centralizar constantes en `AppConstants`:
+  - [x] `hardcodedUserId = 1`
+  - [x] `ratingSuccessResetDelayNanoseconds: UInt64 = 2_000_000_000`
 
 **Criterio de aceptación**: todas las actualizaciones de `@Published` ocurren en el hilo principal gracias a `@MainActor`.
 
 ---
 
-## FASE 4 — UI: Componentes Visuales de Rating
+## FASE 4 — UI: Componentes Visuales de Rating ✅
 
 **Estimación**: 6 h por plataforma  
 **Dependencias**: Fase 3 completada
 
 ### Android
 
-1. Crear `presentation/coursedetail/components/StarRatingBar.kt` (Composable):
-   - `Row` de 5 `Icon` (Material Icons), alternando lleno/vacío según `rating: Int`
-   - Parámetros: `rating: Int`, `onRatingChange: (Int) -> Unit`, `enabled: Boolean`
-   - Con `enabled = false`: opacidad reducida + sin respuesta a interacciones
-
-2. Crear `presentation/coursedetail/components/RatingSection.kt` (Composable):
-   - Bloque de stats visible **solo cuando** `totalRatings > 0` (sin texto alternativo cuando es 0)
-   - Formato del promedio: `"X.X"` + total entre paréntesis
-   - `StarRatingBar` interactivo con `enabled = ratingState != LOADING`
-   - Feedback textual por estado: "Guardando…" / "¡Calificación guardada!" / mensaje de error
-
-3. Crear `presentation/coursedetail/screen/CourseDetailScreen.kt` (Composable):
-   - Thumbnail del curso, nombre, descripción
-   - Integra `RatingSection`
+- [x] Crear `presentation/coursedetail/components/StarRatingBar.kt` (Composable):
+  - [x] `Row` de 5 `Icon` (Material Icons), alternando lleno/vacío según `rating: Int`
+  - [x] Parámetros: `rating: Int`, `onRatingChange: (Int) -> Unit`, `enabled: Boolean`
+  - [x] Con `enabled = false`: opacidad reducida + sin respuesta a interacciones
+- [x] Crear `presentation/coursedetail/components/RatingSection.kt` (Composable):
+  - [x] Bloque de stats visible **solo cuando** `totalRatings > 0` (sin texto alternativo cuando es 0)
+  - [x] Formato del promedio: `"X.X"` + total entre paréntesis
+  - [x] `StarRatingBar` interactivo con `enabled = ratingState != LOADING`
+  - [x] Feedback textual por estado: "Guardando…" / "¡Calificación guardada!" / mensaje de error
+- [x] Crear `presentation/coursedetail/screen/CourseDetailScreen.kt` (Composable):
+  - [x] Thumbnail del curso, nombre, descripción
+  - [x] Integra `RatingSection`
 
 **Criterio de aceptación**: el bloque de stats no aparece si `ratingStats.totalRatings == 0`.
 
 ### iOS
 
-1. Crear `Presentation/Views/StarRatingView.swift`:
-   - `HStack` de 5 `Image(systemName:)` alternando `"star.fill"` (amarillo) / `"star"` (gris)
-   - `onTapGesture` individual por estrella
-   - `.disabled(isSubmitting)` cuando está en estado loading
-   - `accessibilityLabel` por estrella: `"1 estrella"`, `"2 estrellas"`, etc.
-
-2. Crear `Presentation/Views/RatingSectionView.swift`:
-   - `ProgressView` durante estado `.loading`
-   - Bloque de stats visible **solo cuando** `totalRatings > 0` (sin texto alternativo)
-   - Formato: `"X.X"` + `"(N valoraciones)"`
-   - Feedback por estado: "Guardando…" / "¡Calificación guardada!" / mensaje de error
-
-3. Crear `Presentation/Views/CourseDetailView.swift`:
-   - Inicializada con `course: Course`
-   - `AsyncImage` para thumbnail siguiendo el patrón de `CourseCardView`
-   - Carga datos en `.onAppear { Task { await viewModel.loadData() } }`
-   - Integra `RatingSectionView`
+- [x] Crear `Presentation/Views/StarRatingView.swift`:
+  - [x] `HStack` de 5 `Image(systemName:)` alternando `"star.fill"` (amarillo) / `"star"` (gris)
+  - [x] `onTapGesture` individual por estrella
+  - [x] `.disabled(isSubmitting)` cuando está en estado loading
+  - [x] `accessibilityLabel` por estrella: `"1 estrella"`, `"2 estrellas"`, etc.
+- [x] Crear `Presentation/Views/RatingSectionView.swift`:
+  - [x] `ProgressView` durante estado `.loading`
+  - [x] Bloque de stats visible **solo cuando** `totalRatings > 0` (sin texto alternativo)
+  - [x] Formato: `"X.X"` + `"(N valoraciones)"`
+  - [x] Feedback por estado: "Guardando…" / "¡Calificación guardada!" / mensaje de error
+- [x] Crear `Presentation/Views/CourseDetailView.swift`:
+  - [x] Inicializada con `course: Course`
+  - [x] `AsyncImage` para thumbnail siguiendo el patrón de `CourseCardView`
+  - [x] Carga datos en `.onAppear { Task { await viewModel.loadData() } }`
+  - [x] Integra `RatingSectionView`
 
 **Criterio de aceptación**: `StarRatingView` renderiza 5 íconos llenos hasta el valor de `rating` y vacíos el resto.
 
 ---
 
-## FASE 5 — Navegación
+## FASE 5 — Navegación ✅
 
 **Estimación**: 2.5 h Android · 1 h iOS  
 **Dependencias**: Fase 4 completada
 
 ### Android
 
-1. Agregar `@Serializable` al modelo `Course` para serializar el objeto completo en el backstack (evita un request extra al abrir el detalle)
-
-2. Actualizar `MainActivity.kt`:
-   - Implementar `NavHost` con rutas `"courses"` y `"course/{courseId}"`
-   - Conectar el `onCourseClick = {}` vacío actual para navegar a `CourseDetailScreen`
-
-3. Actualizar `di/AppModule.kt` con la factory del `CourseDetailViewModel` que recibe `courseId`
+- [x] Agregar `@Serializable` al modelo `Course` para serializar el objeto completo en el backstack (evita un request extra al abrir el detalle)
+- [x] Actualizar `MainActivity.kt`:
+  - [x] Implementar `NavHost` con rutas tipadas `CourseListRoute` y `Course` (Navigation Compose 2.8 type-safe routes vía `kotlinx.serialization`)
+  - [x] Conectar el `onCourseClick = {}` vacío actual para navegar a `CourseDetailScreen`
+- [x] Actualizar `di/AppModule.kt` con la factory del `CourseDetailViewModel` que recibe `courseId`
 
 **Criterio de aceptación**: tap en una `CourseCard` abre `CourseDetailScreen` con el `courseId` correcto; el Back nativo regresa a la lista.
 
+> **Nota de implementación**: en lugar de rutas string `"courses"` / `"course/{courseId}"`, se usaron rutas tipadas (`@Serializable`) de Navigation Compose 2.8 (`composable<CourseListRoute>` / `composable<Course>`), que es el mecanismo que permite serializar el objeto `Course` completo en el backstack mencionado en el punto 1. Esto requirió actualizar `navigation-compose` a `2.8.0` y agregar el plugin `kotlinx.serialization` + dependencia `kotlinx-serialization-json`.
+
 ### iOS
 
-1. Actualizar `Presentation/Views/CourseListView.swift`:
-   - Envolver `CourseCardView` en `NavigationLink(destination: CourseDetailView(course: course))` dentro del `NavigationView` existente
-
-2. El botón Back nativo de iOS funciona sin configuración adicional
+- [x] Actualizar `Presentation/Views/CourseListView.swift`:
+  - [x] Envolver `CourseCardView` en `NavigationLink(destination: CourseDetailView(course: course))` dentro del `NavigationView` existente
+- [x] El botón Back nativo de iOS funciona sin configuración adicional
 
 **Criterio de aceptación**: `NavigationLink` navega a `CourseDetailView`; el Back regresa a la lista sin configuración extra.
 
 ---
 
-## FASE 6 — Tests del ViewModel
+## FASE 6 — Tests del ViewModel ✅
 
 **Estimación**: 2.5 h por plataforma  
 **Dependencias**: Fase 3 completada (puede hacerse en paralelo con Fases 4 y 5)
@@ -320,25 +301,25 @@ Ambas plataformas deben replicar este flujo exacto:
 
 Crear `presentation/coursedetail/viewmodel/CourseDetailViewModelTest.kt`:
 
-| Caso de test | Descripción |
-|---|---|
-| Estado inicial | `isLoading = true`, `ratingStats = null`, `userRating = null` |
-| Carga exitosa | Tras respuestas OK: `isLoading = false`, `ratingStats` y `userRating` poblados |
-| Actualización optimista | `userRating` cambia **antes** de que el mock de repositorio responda |
-| Rollback en error | `userRating` revierte al valor anterior si `upsertRating` lanza excepción |
-| Transición SUCCESS → IDLE | `ratingState == SUCCESS` pasa a `IDLE` después de 2 segundos (usar `TestCoroutineScheduler`) |
+| Caso de test | Descripción | Estado |
+|---|---|---|
+| Estado inicial | `isLoading = true`, `ratingStats = null`, `userRating = null` | [x] |
+| Carga exitosa | Tras respuestas OK: `isLoading = false`, `ratingStats` y `userRating` poblados | [x] |
+| Actualización optimista | `userRating` cambia **antes** de que el mock de repositorio responda | [x] |
+| Rollback en error | `userRating` revierte al valor anterior si `upsertRating` lanza excepción | [x] |
+| Transición SUCCESS → IDLE | `ratingState == SUCCESS` pasa a `IDLE` después de 2 segundos (usar `TestCoroutineScheduler`) | [x] |
 
 ### iOS
 
 Crear `PlatziFlixiOSTests/CourseDetailViewModelTests.swift`:
 
-| Caso de test | Descripción |
-|---|---|
-| Estado inicial | `isLoading = true`, `ratingStats = nil`, `userRating = nil` |
-| Carga exitosa | `loadData()` puebla `ratingStats` y `userRating` con datos del mock |
-| Actualización optimista | `userRating` se actualiza antes de que el mock de repositorio responda |
-| Rollback en error | `userRating` revierte si el mock de `upsertRating` lanza error |
-| Transición SUCCESS → IDLE | `ratingState` vuelve a `.idle` tras 2 segundos (usar `XCTestExpectation` o clock controlable) |
+| Caso de test | Descripción | Estado |
+|---|---|---|
+| Estado inicial | `isLoading = true`, `ratingStats = nil`, `userRating = nil` | [x] |
+| Carga exitosa | `loadData()` puebla `ratingStats` y `userRating` con datos del mock | [x] |
+| Actualización optimista | `userRating` se actualiza antes de que el mock de repositorio responda | [x] |
+| Rollback en error | `userRating` revierte si el mock de `upsertRating` lanza error | [x] |
+| Transición SUCCESS → IDLE | `ratingState` vuelve a `.idle` tras 2 segundos (usar `XCTestExpectation` o clock controlable) | [x] |
 
 ---
 
