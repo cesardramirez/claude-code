@@ -120,8 +120,13 @@ struct CourseListView: View {
                 // Course list - Changed from grid to vertical stack
                 LazyVStack(spacing: Spacing.spacing4) {
                     ForEach(viewModel.filteredCourses) { course in
-                        CourseCardView(course: course) {
-                            viewModel.selectCourse(course)
+                        ZStack {
+                            CourseCardView(course: course)
+
+                            NavigationLink(destination: CourseDetailView(course: course)) {
+                                EmptyView()
+                            }
+                            .opacity(0)
                         }
                         .accessibilityAddTraits(.isButton)
                     }

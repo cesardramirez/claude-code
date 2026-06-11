@@ -64,12 +64,6 @@ class CourseListViewModel: ObservableObject {
         }
     }
     
-    /// Handles course selection
-    func selectCourse(_ course: Course) {
-        // TODO: Navigate to course detail
-        print("Selected course: \(course.name)")
-    }
-    
     /// Clears error message
     func clearError() {
         errorMessage = nil

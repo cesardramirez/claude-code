@@ -4,7 +4,11 @@ import com.espaciotiago.platziflixandroid.data.network.ApiService
 import com.espaciotiago.platziflixandroid.data.network.NetworkModule
 import com.espaciotiago.platziflixandroid.data.repositories.MockCourseRepository
 import com.espaciotiago.platziflixandroid.data.repositories.RemoteCourseRepository
+import com.espaciotiago.platziflixandroid.data.repositories.RemoteRatingRepository
+import com.espaciotiago.platziflixandroid.domain.models.Course
 import com.espaciotiago.platziflixandroid.domain.repositories.CourseRepository
+import com.espaciotiago.platziflixandroid.domain.repositories.RatingRepository
+import com.espaciotiago.platziflixandroid.presentation.coursedetail.viewmodel.CourseDetailViewModel
 import com.espaciotiago.platziflixandroid.presentation.courses.viewmodel.CourseListViewModel
 
 /**
@@ -25,11 +29,22 @@ object AppModule {
             RemoteCourseRepository(apiService)
         }
     }
-    
+
+    private val ratingRepository: RatingRepository by lazy {
+        RemoteRatingRepository(apiService)
+    }
+
     /**
      * Provides CourseListViewModel instance
      */
     fun provideCourseListViewModel(): CourseListViewModel {
         return CourseListViewModel(courseRepository)
     }
-} 
+
+    /**
+     * Provides CourseDetailViewModel instance for the given course
+     */
+    fun provideCourseDetailViewModel(course: Course): CourseDetailViewModel {
+        return CourseDetailViewModel(course, ratingRepository)
+    }
+}
