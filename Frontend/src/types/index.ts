@@ -10,7 +10,7 @@ export interface Course {
   total_ratings?: number; // Cantidad de ratings
 }
 
-// Class types
+// Class types (detalle de clase, GET /classes/{class_id})
 export interface Class {
   id: number;
   title: string;
@@ -20,10 +20,18 @@ export interface Class {
   slug: string;
 }
 
+// Class summary (clases dentro del detalle de un curso, GET /courses/{slug})
+export interface ClassSummary {
+  id: number;
+  name: string;
+  description: string;
+  slug: string;
+}
+
 // Course Detail type
 export interface CourseDetail extends Course {
   description: string;
-  classes: Class[];
+  classes: ClassSummary[];
 }
 
 // Progress types
