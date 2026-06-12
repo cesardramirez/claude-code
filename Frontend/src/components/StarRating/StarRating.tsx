@@ -62,7 +62,6 @@ export const StarRating = ({
   totalRatings = 0,
   showCount = false,
   size = 'medium',
-  readonly = false,
   className = '',
 }: StarRatingProps) => {
   /**

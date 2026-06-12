@@ -5,7 +5,6 @@ import { StarRating } from "@/components/StarRating/StarRating";
 type CourseProps = Omit<CourseType, "slug">;
 
 export const Course = ({
-  id,
   name,
   description,
   thumbnail,

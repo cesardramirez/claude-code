@@ -1,5 +1,4 @@
 import { renderToString } from "react-dom/server";
-import { startTransition } from "react";
 import ClassPage from "./page";
 import { Class } from "@/types";
 import { describe, it, expect, vi } from "vitest";
@@ -28,7 +27,11 @@ global.fetch = vi.fn().mockResolvedValue({
 
 describe("ClassPage", () => {
   it("renders class info and video", async () => {
-    const html = await renderToString(<ClassPage params={{ class_id: "19" }} />);
+    // ClassPage es un Server Component async (Next.js 15 con params: Promise<...>).
+    // react-dom/server `renderToString` no soporta componentes que suspenden de forma
+    // síncrona, así que resolvemos el componente async primero y renderizamos el JSX resultante.
+    const element = await ClassPage({ params: Promise.resolve({ class_id: "19" }) });
+    const html = await renderToString(element);
 
     expect(html).toContain("Clase de Test");
     expect(html).toContain("Descripción de la clase de test");
