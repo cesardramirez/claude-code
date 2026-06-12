@@ -12,6 +12,11 @@ from app.schemas.rating import (
     RatingStatsResponse,
     ErrorResponse
 )
+from app.schemas.course import (
+    CourseResponse,
+    CourseDetailResponse,
+    ClassDetailResponse
+)
 
 app = FastAPI(
     title=settings.project_name,
@@ -103,7 +108,7 @@ def health() -> dict[str, str | bool | int]:
     return health_status
 
 
-@app.get("/courses", tags=["courses"])
+@app.get("/courses", response_model=List[CourseResponse], tags=["courses"])
 def get_courses(course_service: CourseService = Depends(get_course_service)) -> list:
     """
     Get all courses.
@@ -112,7 +117,7 @@ def get_courses(course_service: CourseService = Depends(get_course_service)) -> 
     return course_service.get_all_courses()
 
 
-@app.get("/courses/{slug}", tags=["courses"])
+@app.get("/courses/{slug}", response_model=CourseDetailResponse, tags=["courses"])
 def get_course_by_slug(slug: str, course_service: CourseService = Depends(get_course_service)) -> dict:
     """
     Get course details by slug.
@@ -126,7 +131,7 @@ def get_course_by_slug(slug: str, course_service: CourseService = Depends(get_co
     return course
 
 
-@app.get("/classes/{class_id}", tags=["courses"])
+@app.get("/classes/{class_id}", response_model=ClassDetailResponse, tags=["courses"])
 def get_class_by_id(class_id: int, db: Session = Depends(get_db)) -> dict:
     """
     Get lesson/class details by ID.
