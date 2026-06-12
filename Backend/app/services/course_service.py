@@ -25,7 +25,12 @@ class CourseService:
             List of course dictionaries with: id, name, description, thumbnail, slug,
             average_rating, total_ratings
         """
-        courses = self.db.query(Course).filter(Course.deleted_at.is_(None)).all()
+        courses = (
+            self.db.query(Course)
+            .filter(Course.deleted_at.is_(None))
+            .order_by(Course.id)
+            .all()
+        )
 
         result = []
         for course in courses:
