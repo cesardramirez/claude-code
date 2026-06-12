@@ -21,7 +21,7 @@ def db_session():
 
 @pytest.fixture
 def sample_course(db_session):
-    """Create and persist sample course."""
+    """Create and persist sample course, cleaning it up afterwards."""
     course = Course(
         name="Test Course",
         description="Test Description",
@@ -31,7 +31,15 @@ def sample_course(db_session):
     db_session.add(course)
     db_session.commit()
     db_session.refresh(course)
-    return course
+
+    yield course
+
+    # Revertir cualquier transaccion fallida (p.ej. IntegrityError de un
+    # CHECK constraint) antes de poder borrar los datos creados
+    db_session.rollback()
+    db_session.query(CourseRating).filter(CourseRating.course_id == course.id).delete()
+    db_session.query(Course).filter(Course.id == course.id).delete()
+    db_session.commit()
 
 
 class TestRatingConstraints:
