@@ -21,6 +21,10 @@ Platzi - Curso de Claude Code
   - [Clean Architecture + MVVM](#-clean-architecture--mvvm)
 - [Patrones Compartidos en Todo el Sistema](#patrones-compartidos-en-todo-el-sistema)
 - [Flujo End-to-End](#-flujo-end-to-end)
+- [Cómo levantar los servicios](#cómo-levantar-los-servicios)
+  - [Backend (API + PostgreSQL)](#backend-api--postgresql)
+  - [Frontend (Next.js)](#frontend-nextjs)
+  - [URLs para probar](#urls-para-probar)
 
 
 ## 🖼️ Big Picture
@@ -262,3 +266,9 @@ yarn dev
 - **API Backend**: http://localhost:8000
 - **Documentación de la API (Swagger)**: http://localhost:8000/docs
 - **Health check**: http://localhost:8000/health
+
+![Servicios Backend](docs/img/05_Servicios_Backend.png)
+
+![Vista Frontend](docs/img/06_Vista_Frontend.png)
+
+![Swagger](docs/img/07_Swagger.png)
