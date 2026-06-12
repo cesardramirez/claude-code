@@ -1906,7 +1906,8 @@ try {
 ### Validación Final
 - [x] Ejecutar `yarn dev` y probar flujo completo
 - [ ] Verificar en Chrome, Firefox, Safari (solo verificado en Chrome/Chromium)
-- [x] Validar responsive en mobile (360px, 768px, 1024px)
+- [x] Ejecutar `yarn e2e` (7/7 tests pasan en `e2e/ratings.spec.ts`)
+- [x] Validar responsive en mobile (360px, 768px, 1024px) (confirmado: `RatingSection` con sus 5 estrellas visible sin overflow horizontal en `/course/curso-de-react`, y `StarRating` readonly en las cards de la home sin romper el grid a 360px)
 - [x] Probar navegación por teclado completa (Arrow keys + focus/blur en `RatingSection`)
 - [ ] Validar con screen reader (VoiceOver, NVDA) (no automatizable)
 - [x] Verificar bundle size incrementado < 10KB
