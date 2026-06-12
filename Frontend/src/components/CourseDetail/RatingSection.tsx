@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ratingsApi, ApiError } from '@/services/ratingsApi';
 import { StarRating } from '@/components/StarRating/StarRating';
 import type { RatingState } from '@/types/rating';
@@ -25,15 +25,34 @@ export const RatingSection = ({
   const [totalRatings, setTotalRatings] = useState(initialTotalRatings);
   const [state, setState] = useState<RatingState>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const starButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   useEffect(() => {
+    let isMounted = true;
+
     ratingsApi
       .getUserRating(courseId, userId)
       .then((existing) => {
-        if (existing) setUserRating(existing.rating);
+        if (isMounted && existing) setUserRating(existing.rating);
       })
       .catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
   }, [courseId, userId]);
+
+  // Limpia el mensaje de error automáticamente tras un tiempo
+  useEffect(() => {
+    if (state !== 'error') return;
+
+    const timeoutId = setTimeout(() => {
+      setState('idle');
+      setErrorMessage('');
+    }, 4000);
+
+    return () => clearTimeout(timeoutId);
+  }, [state]);
 
   const handleRating = async (rating: number) => {
     const previousRating = userRating;
@@ -59,6 +78,28 @@ export const RatingSection = ({
     }
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, star: number) => {
+    let nextStar: number | null = null;
+
+    switch (event.key) {
+      case 'ArrowRight':
+      case 'ArrowUp':
+        nextStar = Math.min(5, star + 1);
+        break;
+      case 'ArrowLeft':
+      case 'ArrowDown':
+        nextStar = Math.max(1, star - 1);
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+
+    const nextButton = starButtonRefs.current[nextStar - 1];
+    nextButton?.focus();
+  };
+
   const displayRating = hoveredRating || userRating;
 
   return (
@@ -69,10 +110,16 @@ export const RatingSection = ({
         {[1, 2, 3, 4, 5].map((star) => (
           <button
             key={star}
+            ref={(el) => {
+              starButtonRefs.current[star - 1] = el;
+            }}
             className={`${styles.starBtn} ${displayRating >= star ? styles.active : ''}`}
             onClick={() => handleRating(star)}
             onMouseEnter={() => setHoveredRating(star)}
             onMouseLeave={() => setHoveredRating(0)}
+            onFocus={() => setHoveredRating(star)}
+            onBlur={() => setHoveredRating(0)}
+            onKeyDown={(event) => handleKeyDown(event, star)}
             disabled={state === 'loading'}
             aria-label={`Calificar con ${star} estrella${star !== 1 ? 's' : ''}`}
             aria-pressed={userRating === star}

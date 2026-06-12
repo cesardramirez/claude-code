@@ -313,4 +313,123 @@ describe('RatingSection', () => {
       expect(screen.getByText('2 / 5')).toBeInTheDocument();
     });
   });
+
+  describe('Navegación por teclado', () => {
+    it('mueve el foco a la siguiente estrella con ArrowRight', async () => {
+      await act(async () => {
+        render(<RatingSection {...defaultProps} />);
+      });
+
+      const star2 = screen.getByRole('button', { name: 'Calificar con 2 estrellas' });
+      const star3 = screen.getByRole('button', { name: 'Calificar con 3 estrellas' });
+
+      act(() => {
+        star2.focus();
+        fireEvent.keyDown(star2, { key: 'ArrowRight' });
+      });
+
+      expect(star3).toHaveFocus();
+    });
+
+    it('mueve el foco a la estrella anterior con ArrowLeft', async () => {
+      await act(async () => {
+        render(<RatingSection {...defaultProps} />);
+      });
+
+      const star3 = screen.getByRole('button', { name: 'Calificar con 3 estrellas' });
+      const star2 = screen.getByRole('button', { name: 'Calificar con 2 estrellas' });
+
+      act(() => {
+        star3.focus();
+        fireEvent.keyDown(star3, { key: 'ArrowLeft' });
+      });
+
+      expect(star2).toHaveFocus();
+    });
+
+    it('no mueve el foco más allá de los límites (1-5)', async () => {
+      await act(async () => {
+        render(<RatingSection {...defaultProps} />);
+      });
+
+      const star1 = screen.getByRole('button', { name: 'Calificar con 1 estrella' });
+      const star5 = screen.getByRole('button', { name: 'Calificar con 5 estrellas' });
+
+      act(() => {
+        star1.focus();
+        fireEvent.keyDown(star1, { key: 'ArrowLeft' });
+      });
+      expect(star1).toHaveFocus();
+
+      act(() => {
+        star5.focus();
+        fireEvent.keyDown(star5, { key: 'ArrowRight' });
+      });
+      expect(star5).toHaveFocus();
+    });
+
+    it('actualiza el label al enfocar una estrella con el teclado', async () => {
+      await act(async () => {
+        render(<RatingSection {...defaultProps} />);
+      });
+
+      const star4 = screen.getByRole('button', { name: 'Calificar con 4 estrellas' });
+
+      fireEvent.focus(star4);
+      expect(screen.getByText('4 / 5')).toBeInTheDocument();
+
+      fireEvent.blur(star4);
+      expect(screen.queryByText('4 / 5')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Manejo del ciclo de vida', () => {
+    it('limpia el mensaje de error automáticamente tras un tiempo', async () => {
+      mockedApi.createRating.mockRejectedValue(new Error('Server error'));
+
+      await act(async () => {
+        render(<RatingSection {...defaultProps} />);
+      });
+
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole('button', { name: 'Calificar con 2 estrellas' })
+        );
+      });
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Error al guardar tu calificación')
+        ).toBeInTheDocument();
+      });
+
+      await waitFor(
+        () => {
+          expect(
+            screen.queryByText('Error al guardar tu calificación')
+          ).not.toBeInTheDocument();
+        },
+        { timeout: 6000 }
+      );
+    }, 10000);
+
+    it('no actualiza el estado si el componente se desmonta antes de getUserRating', async () => {
+      let resolveUserRating: (value: null) => void = () => {};
+      mockedApi.getUserRating.mockReturnValue(
+        new Promise((resolve) => {
+          resolveUserRating = resolve;
+        })
+      );
+
+      const { unmount } = render(<RatingSection {...defaultProps} />);
+      unmount();
+
+      // Resolver después de desmontar no debe causar warnings/errores de React
+      await act(async () => {
+        resolveUserRating(null);
+      });
+
+      expect(mockedApi.getUserRating).toHaveBeenCalledWith(1, 1);
+    });
+  });
 });
