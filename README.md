@@ -228,5 +228,37 @@ Usuario ve lección → GET /classes/{id} → VideoPlayer
 Usuario puntúa → POST /courses/{id}/ratings → Upsert en DB
 ```
 
----
 **Resumen de la arquitectura**: Es un sistema Netflix-clone educativo con API REST central (FastAPI) que alimenta tres clientes independientes. Todos usan Repository Pattern como contrato de datos, DTOs con mappers para separar capas, y Clean Architecture en mobile. El backend implementa soft deletes y agregaciones SQL eficientes para rating stats.
+
+## Cómo levantar los servicios
+
+### Backend (API + PostgreSQL)
+
+El backend corre exclusivamente dentro de Docker (`docker compose up -d`). Desde la carpeta `Backend/`:
+
+```bash
+make start     # Levanta los contenedores (API + base de datos)
+make migrate   # Aplica las migraciones (solo la primera vez o tras cambios de modelo)
+make seed      # Carga datos de prueba (solo la primera vez)
+```
+
+Para detener los servicios:
+
+```bash
+make stop
+```
+
+### Frontend (Next.js)
+
+Desde la carpeta `Frontend/`:
+
+```bash
+yarn dev
+```
+
+## URLs para probar
+
+- **Frontend**: http://localhost:3000
+- **API Backend**: http://localhost:8000
+- **Documentación de la API (Swagger)**: http://localhost:8000/docs
+- **Health check**: http://localhost:8000/health
