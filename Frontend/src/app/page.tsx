@@ -30,7 +30,7 @@ export default async function Home() {
       <main className={styles.main}>
         <div className={styles.coursesGrid}>
           {courses.map((course) => (
-            <Link href={`/course/${course.slug}`} key={course.id}>
+            <Link href={`/course/${course.slug}`} key={course.id} className={styles.courseLink}>
               <CourseComponent
                 id={course.id}
                 name={course.name}
