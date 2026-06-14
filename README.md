@@ -272,3 +272,5 @@ yarn dev
 ![Vista Frontend](docs/img/06_Vista_Frontend.png)
 
 ![Swagger](docs/img/07_Swagger.png)
+
+Ejemplo de un PR para usar Claude
